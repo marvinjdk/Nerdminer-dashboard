@@ -2,11 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-    <title>NerdMiner Dashboard</title>
+    <title>⚡ NerdMiner Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <style>
         body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
+            font-family: 'Segoe UI', 'Cascadia Code', 'Consolas', monospace; 
             margin: 0;
             padding: 20px;
             background: #0d1117; 
@@ -20,11 +21,74 @@
             padding-bottom: 15px;
             border-bottom: 2px solid #30363d;
             font-size: 2.2em;
+            text-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
         }
         .dashboard-container {
-            max-width: 1600px;
+            max-width: 1800px;
             margin: 0 auto;
         }
+        
+        /* BTC Price Ticker */
+        .btc-ticker {
+            background: linear-gradient(135deg, #f2a900, #f7931a);
+            color: #000;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin: 20px auto;
+            max-width: 500px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            border: 2px solid #f2a900;
+            box-shadow: 0 0 20px rgba(242, 169, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        .btc-ticker .btc-logo {
+            font-size: 1.5em;
+            animation: pulse-btc 2s infinite;
+        }
+        @keyframes pulse-btc {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Geek Stats Grid */
+        .geek-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+        .geek-stat {
+            background: #161b22;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            text-align: center;
+        }
+        .geek-stat:hover {
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+            transition: all 0.3s;
+        }
+        .geek-stat h3 {
+            color: #f78166;
+            margin: 0 0 10px 0;
+            font-size: 1em;
+        }
+        .geek-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #58a6ff;
+        }
+        .geek-unit {
+            font-size: 0.8em;
+            color: #8b949e;
+        }
+        
         .top-container { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
@@ -95,11 +159,22 @@
             border: 1px solid #30363d;
             padding: 20px;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         .miner-card:hover {
             transform: translateY(-5px);
             border-color: #58a6ff;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        .miner-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #58a6ff, #f78166);
         }
         .miner-header {
             display: flex;
@@ -244,9 +319,56 @@
             50% { box-shadow: 0 0 15px #f78166; }
         }
         
+        /* Geeky terminal style */
+        .terminal {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Cascadia Code', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #58a6ff;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .terminal .prompt {
+            color: #f78166;
+        }
+        .terminal .command {
+            color: #58a6ff;
+        }
+        .terminal .output {
+            color: #8b949e;
+        }
+        
+        /* Lottery odds display */
+        .lottery-odds {
+            background: linear-gradient(135deg, #161b22, #1a1f29);
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .lottery-odds h3 {
+            color: #f78166;
+            margin-top: 0;
+        }
+        .odds-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #58a6ff;
+            margin: 10px 0;
+        }
+        .odds-comparison {
+            font-size: 0.9em;
+            color: #8b949e;
+            font-style: italic;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
-            .top-container, .miners-container {
+            .top-container, .miners-container, .geek-stats {
                 grid-template-columns: 1fr;
             }
             .timeframe-stats {
@@ -308,17 +430,102 @@
         .footer a:hover {
             text-decoration: underline;
         }
+        
+        /* Sound toggle */
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5em;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .sound-toggle:hover {
+            border-color: #58a6ff;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <h1>⚡ NerdMiner Dashboard</h1>
         
+        <!-- BTC Price Ticker -->
+        <div class="btc-ticker">
+            <span class="btc-logo">₿</span>
+            <span id="btcPriceDKK">Loading BTC price...</span>
+            <span id="btcChange" style="font-size: 0.8em;"></span>
+        </div>
+        
         <div id="updateIndicator">
             <span id="updateStatus">🔄 Loading initial data...</span><br>
             <span id="updateTime" style="font-size: 0.9em; color: #8b949e;"></span>
         </div>
         
+        <!-- Geek Stats Section -->
+        <div class="section-header">
+            <span>🤓 Geek Stats & Fun Facts</span>
+        </div>
+        
+        <div class="geek-stats">
+            <div class="geek-stat">
+                <h3>🎯 Block Finding Odds</h3>
+                <div class="geek-value" id="oddsRatio">1 : </div>
+                <div class="geek-unit" id="oddsText">Loading...</div>
+            </div>
+            
+            <div class="geek-stat">
+                <h3>⚡ Your Hashrate</h3>
+                <div class="geek-value" id="yourHashrate">0</div>
+                <div class="geek-unit">H/s</div>
+            </div>
+            
+            <div class="geek-stat">
+                <h3>🌐 Network Hashrate</h3>
+                <div class="geek-value" id="networkHashrate">0</div>
+                <div class="geek-unit">EH/s</div>
+            </div>
+            
+            <div class="geek-stat">
+                <h3>⏱️ Time to Find Block</h3>
+                <div class="geek-value" id="timeToBlock">∞</div>
+                <div class="geek-unit">at current rate</div>
+            </div>
+            
+            <div class="geek-stat">
+                <h3>💰 Potential Reward</h3>
+                <div class="geek-value" id="potentialReward">0</div>
+                <div class="geek-unit">DKK per block</div>
+            </div>
+            
+            <div class="geek-stat">
+                <h3>🎰 Lottery Comparison</h3>
+                <div class="geek-value" id="lotteryTimes">0</div>
+                <div class="geek-unit">more likely to win lottery</div>
+            </div>
+        </div>
+        
+        <!-- Lottery Odds Display -->
+        <div class="lottery-odds">
+            <h3>🎱 Your Mining Odds vs. Winning the Lottery</h3>
+            <div class="terminal">
+                <div><span class="prompt">$</span> <span class="command">calculate_odds</span></div>
+                <div class="output">Your chance to find a Bitcoin block: <span id="chancePerSecond">0</span> per second</div>
+                <div class="output">Winning Danish Lotto (7/36): ~1 in 8,347,680</div>
+                <div class="output">You are <span id="comparisonFactor" style="color:#f78166;font-weight:bold">0</span> times more likely to win the lottery!</div>
+            </div>
+        </div>
+        
+        <!-- Main Stats -->
         <div class="top-container">
             <div class="card">
                 <h2>📊 Overall Stats</h2>
@@ -372,6 +579,7 @@
             </div>
         </div>
         
+        <!-- Individual Miners -->
         <div class="section-header">
             <span>⚙️ Individual Miners</span>
             <span style="font-size: 0.8em; color: #8b949e;">(Norse Mythology Edition)</span>
@@ -381,15 +589,49 @@
             <!-- Individual miner cards will be inserted here -->
         </div>
         
+        <!-- Terminal Output -->
+        <div class="section-header">
+            <span>💻 Mining Terminal</span>
+        </div>
+        
+        <div class="terminal">
+            <div><span class="prompt">miner@nerdminer:~$</span> <span class="command">status --all</span></div>
+            <div class="output">> System: NerdMiner Cluster v2.1</div>
+            <div class="output">> Uptime: <span id="uptime">00:00:00</span></div>
+            <div class="output">> Mode: Solo Mining (Ultra Lottery)</div>
+            <div class="output">> Philosophy: Hobbyist / Educational</div>
+            <div class="output">> Motivation: Gadget geekery & Norse mythology</div>
+            <div class="output">> Profit expectation: Priceless fun > DKK</div>
+            <div><span class="prompt">miner@nerdminer:~$</span> <span class="command">echo "We're not here for the money, we're here for the fun!"</span></div>
+            <div class="output">We're not here for the money, we're here for the fun!</div>
+        </div>
+        
         <div class="footer">
             <p>Dashboard updates every 30 seconds • Made with ⚡ for NerdMiner community</p>
-            <p>Pool: <a href="https://pool.nerdminers.org" target="_blank">pool.nerdminers.org</a> • API updates via CORS proxy</p>
+            <p>BTC Price: CoinGecko API • Pool: <a href="https://pool.nerdminers.org" target="_blank">pool.nerdminers.org</a></p>
+            <p>Remember: The real treasure is the friends (and gadgets) we made along the way! 🎮</p>
         </div>
     </div>
+    
+    <!-- Sound Toggle -->
+    <div class="sound-toggle" id="soundToggle" title="Toggle sound effects">
+        🔇
+    </div>
+    
+    <!-- Audio for effects -->
+    <audio id="newShareSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="blockSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
 
 <script>
     // Configuration
     const API_URL = 'https://pool.nerdminers.org/users/3HQ1sYR1wNSGr6BLJsxVz1bV5SFTANLwBT';
+    const BTC_PRICE_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=dkk&include_24hr_change=true';
+    const NETWORK_API = 'https://blockchain.info/q/hashrate';
+    
     const PROXIES = [
         'https://api.codetabs.com/v1/proxy?quest=',
         'https://corsproxy.io/?',
@@ -413,11 +655,151 @@
         'default': 'Norse mythology figure'
     };
     
-    // Store share history for charts
+    // Store data
     let shareHistory = {};
     let currentProxyIndex = 0;
     let mainChartInstance = null;
     let lastUpdateTime = null;
+    let btcPriceDKK = 0;
+    let btcChange24h = 0;
+    let networkHashrate = 0;
+    let soundEnabled = false;
+    let lastShareCount = 0;
+    let startTime = Date.now();
+    
+    // Format large numbers
+    function formatNumber(num) {
+        if (num >= 1e18) return (num / 1e18).toFixed(2) + ' quintillion';
+        if (num >= 1e15) return (num / 1e15).toFixed(2) + ' quadrillion';
+        if (num >= 1e12) return (num / 1e12).toFixed(2) + ' trillion';
+        if (num >= 1e9) return (num / 1e9).toFixed(2) + ' billion';
+        if (num >= 1e6) return (num / 1e6).toFixed(2) + ' million';
+        if (num >= 1e3) return (num / 1e3).toFixed(2) + ' thousand';
+        return num.toFixed(2);
+    }
+    
+    // Format time duration
+    function formatDuration(seconds) {
+        if (seconds >= 3.154e7) return (seconds / 3.154e7).toFixed(1) + ' years';
+        if (seconds >= 86400) return (seconds / 86400).toFixed(1) + ' days';
+        if (seconds >= 3600) return (seconds / 3600).toFixed(1) + ' hours';
+        if (seconds >= 60) return (seconds / 60).toFixed(1) + ' minutes';
+        return seconds.toFixed(0) + ' seconds';
+    }
+    
+    // Update uptime display
+    function updateUptime() {
+        const uptimeSeconds = Math.floor((Date.now() - startTime) / 1000);
+        const hours = Math.floor(uptimeSeconds / 3600);
+        const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+        const seconds = uptimeSeconds % 60;
+        document.getElementById('uptime').textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Fetch BTC price
+    async function fetchBTCPrice() {
+        try {
+            const proxyUrl = PROXIES[0] + encodeURIComponent(BTC_PRICE_API);
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error('BTC price fetch failed');
+            
+            const data = await response.json();
+            btcPriceDKK = data.bitcoin.dkk;
+            btcChange24h = data.bitcoin.dkk_24h_change;
+            
+            // Update display
+            const priceElement = document.getElementById('btcPriceDKK');
+            const changeElement = document.getElementById('btcChange');
+            
+            priceElement.textContent = `1 BTC = ${btcPriceDKK.toLocaleString('da-DK')} DKK`;
+            
+            const changeColor = btcChange24h >= 0 ? '#238636' : '#da3633';
+            const changeSymbol = btcChange24h >= 0 ? '📈' : '📉';
+            changeElement.innerHTML = `${changeSymbol} ${btcChange24h >= 0 ? '+' : ''}${btcChange24h.toFixed(2)}%`;
+            changeElement.style.color = changeColor;
+            
+        } catch (error) {
+            console.error('Failed to fetch BTC price:', error);
+            document.getElementById('btcPriceDKK').textContent = 'BTC price unavailable';
+        }
+    }
+    
+    // Fetch network hashrate
+    async function fetchNetworkHashrate() {
+        try {
+            const proxyUrl = PROXIES[0] + encodeURIComponent(NETWORK_API);
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error('Network hashrate fetch failed');
+            
+            const hashrate = await response.text();
+            networkHashrate = parseFloat(hashrate) / 1e18; // Convert to EH/s
+            document.getElementById('networkHashrate').textContent = networkHashrate.toFixed(2);
+            
+        } catch (error) {
+            console.error('Failed to fetch network hashrate:', error);
+            networkHashrate = 500; // Default estimate in EH/s
+        }
+    }
+    
+    // Calculate and display geek stats
+    function updateGeekStats(yourHashrateHps) {
+        // Convert your hashrate to H/s
+        const yourHashrate = yourHashrateHps || 0;
+        document.getElementById('yourHashrate').textContent = formatNumber(yourHashrate);
+        
+        // Calculate odds
+        if (networkHashrate > 0 && yourHashrate > 0) {
+            const networkHashrateHps = networkHashrate * 1e18;
+            const odds = networkHashrateHps / yourHashrate;
+            
+            // Update odds display
+            document.getElementById('oddsRatio').textContent = `1 : ${formatNumber(odds)}`;
+            document.getElementById('oddsText').textContent = `Your chance vs network`;
+            
+            // Time to find a block (seconds)
+            const blockTimeSeconds = odds * 600; // 10 minutes average block time
+            document.getElementById('timeToBlock').textContent = formatDuration(blockTimeSeconds);
+            
+            // Chance per second
+            const chancePerSecond = 1 / blockTimeSeconds;
+            document.getElementById('chancePerSecond').textContent = chancePerSecond.toExponential(2);
+            
+            // Lottery comparison (Danish Lotto 7/36 odds: ~1 in 8,347,680)
+            const lottoOdds = 8347680;
+            const comparison = odds / lottoOdds;
+            document.getElementById('comparisonFactor').textContent = formatNumber(comparison);
+            document.getElementById('lotteryTimes').textContent = formatNumber(comparison);
+            
+            // Potential reward in DKK
+            const blockRewardBTC = 6.25;
+            const potentialRewardDKK = blockRewardBTC * btcPriceDKK;
+            document.getElementById('potentialReward').textContent = potentialRewardDKK.toLocaleString('da-DK');
+        }
+    }
+    
+    // Play sound effect
+    function playSound(soundId) {
+        if (!soundEnabled) return;
+        
+        const sound = document.getElementById(soundId);
+        if (sound) {
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Audio play failed:", e));
+        }
+    }
+    
+    // Toggle sound
+    document.getElementById('soundToggle').addEventListener('click', function() {
+        soundEnabled = !soundEnabled;
+        this.textContent = soundEnabled ? '🔊' : '🔇';
+        this.title = soundEnabled ? 'Sound: ON' : 'Sound: OFF';
+        
+        // Play test sound if enabling
+        if (soundEnabled) {
+            playSound('newShareSound');
+        }
+    });
     
     function getProxyUrl() {
         return PROXIES[currentProxyIndex] + encodeURIComponent(API_URL);
@@ -514,19 +896,22 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { 
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: '#161b22',
-                        titleColor: '#c9d1d9',
-                        bodyColor: '#58a6ff',
-                        borderColor: '#30363d',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.raw;
-                                return `Best Share: ${value.toFixed(4)}`;
+                    legend: { display: false },
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: 1.0,
+                                yMax: 1.0,
+                                borderColor: '#f78166',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                label: {
+                                    content: 'Block Threshold',
+                                    enabled: true,
+                                    position: 'end',
+                                    backgroundColor: 'rgba(247, 129, 102, 0.8)'
+                                }
                             }
                         }
                     }
@@ -563,17 +948,12 @@
                             font: { size: 11 }
                         }
                     }
-                },
-                elements: {
-                    line: {
-                        tension: 0.4
-                    }
                 }
             }
         });
     }
     
-    async function fetchData() {
+    async function fetchMinerData() {
         try {
             // Update indicator
             const updateEl = document.getElementById('updateStatus');
@@ -593,6 +973,13 @@
             const data = await response.json();
             lastUpdateTime = new Date();
             updateDashboard(data);
+            
+            // Check for new shares (for sound effects)
+            const currentShares = data.shares || 0;
+            if (currentShares > lastShareCount) {
+                playSound('newShareSound');
+            }
+            lastShareCount = currentShares;
             
             // Update success indicator
             if (updateEl) {
@@ -621,29 +1008,24 @@
     }
     
     function updateDashboard(data) {
-        // Overall stats
-        const total1mEl = document.getElementById('total1m');
-        const workerCountEl = document.getElementById('workerCount');
-        const totalSharesEl = document.getElementById('totalShares');
-        const bestEverEl = document.getElementById('bestEver');
-        const lastShareTimeEl = document.getElementById('lastShareTime');
+        // Calculate total hashrate in H/s
+        const totalHashrateHps = parseHashrate(data.hashrate1m || '0');
         
-        if (total1mEl) total1mEl.textContent = data.hashrate1m || '...';
-        if (workerCountEl) workerCountEl.textContent = data.workers || '...';
-        if (totalSharesEl) totalSharesEl.textContent = data.shares ? data.shares.toLocaleString() : '...';
-        if (bestEverEl) bestEverEl.textContent = data.bestever ? data.bestever.toFixed(4) : '...';
-        if (lastShareTimeEl) lastShareTimeEl.textContent = formatTimeAgo(data.lastshare);
+        // Update geek stats
+        updateGeekStats(totalHashrateHps);
+        
+        // Overall stats
+        document.getElementById('total1m').textContent = data.hashrate1m || '...';
+        document.getElementById('workerCount').textContent = data.workers || '...';
+        document.getElementById('totalShares').textContent = data.shares ? data.shares.toLocaleString() : '...';
+        document.getElementById('bestEver').textContent = data.bestever ? data.bestever.toFixed(4) : '...';
+        document.getElementById('lastShareTime').textContent = formatTimeAgo(data.lastshare);
         
         // Pool performance stats
-        const hashrate5mEl = document.getElementById('hashrate5m');
-        const hashrate1hrEl = document.getElementById('hashrate1hr');
-        const hashrate1dEl = document.getElementById('hashrate1d');
-        const hashrate7dEl = document.getElementById('hashrate7d');
-        
-        if (hashrate5mEl) hashrate5mEl.textContent = data.hashrate5m || '...';
-        if (hashrate1hrEl) hashrate1hrEl.textContent = data.hashrate1hr || '...';
-        if (hashrate1dEl) hashrate1dEl.textContent = data.hashrate1d || '...';
-        if (hashrate7dEl) hashrate7dEl.textContent = data.hashrate7d || '...';
+        document.getElementById('hashrate5m').textContent = data.hashrate5m || '...';
+        document.getElementById('hashrate1hr').textContent = data.hashrate1hr || '...';
+        document.getElementById('hashrate1d').textContent = data.hashrate1d || '...';
+        document.getElementById('hashrate7d').textContent = data.hashrate7d || '...';
         
         // Update individual miners
         if (data.worker && Array.isArray(data.worker)) {
@@ -697,7 +1079,7 @@
                     <div class="miner-info">
                         <div class="miner-name">
                             ${workerName}
-                            ${foundBlock ? '<span class="block-badge">BLOCK FOUND!</span>' : ''}
+                            ${foundBlock ? '<span class="block-badge">BLOCK THRESHOLD REACHED!</span>' : ''}
                         </div>
                         <div class="miner-mythology">${description}</div>
                         <div class="miner-status" style="background: ${statusColor}">
@@ -857,32 +1239,47 @@
                     line: {
                         tension: 0.4
                     }
-                },
-                layout: {
-                    padding: {
-                        top: 10,
-                        bottom: 10,
-                        left: 10,
-                        right: 10
-                    }
                 }
             }
         });
     }
     
-    // Initialize
+    // Initialize everything
     document.addEventListener('DOMContentLoaded', function() {
-        fetchData();
-        // Update every 30 seconds
-        setInterval(fetchData, 30000);
+        // Start uptime counter
+        setInterval(updateUptime, 1000);
+        updateUptime();
         
-        // Add keyboard shortcut for manual refresh (F5 or Ctrl+R)
+        // Fetch initial data
+        fetchBTCPrice();
+        fetchNetworkHashrate();
+        fetchMinerData();
+        
+        // Set up periodic updates
+        setInterval(fetchBTCPrice, 60000); // Update BTC price every minute
+        setInterval(fetchNetworkHashrate, 300000); // Update network hashrate every 5 minutes
+        setInterval(fetchMinerData, 30000); // Update miner data every 30 seconds
+        
+        // Add keyboard shortcuts
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
                 e.preventDefault();
-                fetchData();
+                fetchMinerData();
+                fetchBTCPrice();
+            }
+            if (e.key === 's' || e.key === 'S') {
+                soundEnabled = !soundEnabled;
+                const toggle = document.getElementById('soundToggle');
+                toggle.textContent = soundEnabled ? '🔊' : '🔇';
+                toggle.title = soundEnabled ? 'Sound: ON' : 'Sound: OFF';
             }
         });
+        
+        // Add tooltip for keyboard shortcuts
+        console.log('🎮 Keyboard shortcuts:');
+        console.log('   F5 or Ctrl+R = Refresh all data');
+        console.log('   S = Toggle sound effects');
+        console.log('   🔨🐎⚔️🐿️ = Norse miners ready!');
     });
 </script>
 </body>
