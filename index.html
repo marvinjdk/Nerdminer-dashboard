@@ -6,7 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { 
-            font-family: Arial, sans-serif; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
             margin: 0;
             padding: 20px;
             background: #0d1117; 
@@ -19,9 +19,10 @@
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 2px solid #30363d;
+            font-size: 2.2em;
         }
         .dashboard-container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
         .top-container { 
@@ -68,18 +69,24 @@
             text-align: right;
         }
         
-        /* Chart container - FIXED HEIGHT */
+        /* Chart containers */
         .chart-container {
             position: relative;
-            height: 250px; /* Fixed height */
+            height: 250px;
             width: 100%;
+        }
+        .small-chart-container {
+            position: relative;
+            height: 180px;
+            width: 100%;
+            margin-top: 15px;
         }
         
         /* Individual Miner Blocks */
         .miners-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
             margin-top: 20px;
         }
         .miner-card {
@@ -87,64 +94,116 @@
             border-radius: 12px;
             border: 1px solid #30363d;
             padding: 20px;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
         }
         .miner-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
             border-color: #58a6ff;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
         .miner-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
             border-bottom: 2px solid #30363d;
+        }
+        .miner-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0d1117, #1a1f29);
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            width: 70px;
+            height: 70px;
+            margin-right: 20px;
+            font-size: 36px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .miner-info {
+            flex-grow: 1;
         }
         .miner-name {
             color: #58a6ff;
-            font-size: 1.2em;
+            font-size: 1.4em;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        .miner-mythology {
+            font-size: 0.9em;
+            color: #8b949e;
+            font-style: italic;
+            margin-bottom: 8px;
+            line-height: 1.4;
         }
         .miner-status {
             background: #238636;
             color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.8em;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+            letter-spacing: 0.5px;
         }
         .timeframe-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 20px;
         }
         .timeframe-card {
             background: #0d1117;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 10px;
             border-left: 4px solid #58a6ff;
+            transition: transform 0.2s;
+        }
+        .timeframe-card:hover {
+            transform: translateX(5px);
+            background: #131820;
         }
         .timeframe-label {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #8b949e;
+            margin-bottom: 5px;
         }
         .timeframe-value {
-            font-size: 1em;
+            font-size: 1.1em;
             font-weight: bold;
             color: #58a6ff;
+        }
+        
+        /* Share history section */
+        .share-history {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #30363d;
+        }
+        .share-history h3 {
+            color: #f78166;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         /* Update indicator */
         #updateIndicator {
             text-align: center;
-            padding: 12px;
-            margin: 20px auto;
+            padding: 15px;
+            margin: 25px auto;
             background: #161b22;
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid #30363d;
-            max-width: 400px;
+            max-width: 450px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .updating {
             animation: pulse 1.5s infinite;
@@ -159,11 +218,30 @@
         /* Section headers */
         .section-header {
             color: #f78166;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
             border-bottom: 2px solid #30363d;
-            font-size: 1.4em;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        /* Block found badge */
+        .block-badge {
+            background: linear-gradient(135deg, #f78166, #da3633);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-left: 8px;
+            animation: glow 2s infinite;
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px #f78166; }
+            50% { box-shadow: 0 0 15px #f78166; }
         }
         
         /* Responsive */
@@ -177,11 +255,28 @@
             .chart-container {
                 height: 220px;
             }
+            .small-chart-container {
+                height: 160px;
+            }
+            .miner-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .miner-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+                width: 80px;
+                height: 80px;
+                font-size: 40px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
         }
         
         @media (max-width: 480px) {
             body {
-                padding: 10px;
+                padding: 15px;
             }
             .card {
                 padding: 15px;
@@ -189,6 +284,29 @@
             .chart-container {
                 height: 200px;
             }
+            .small-chart-container {
+                height: 140px;
+            }
+            .miner-card {
+                padding: 15px;
+            }
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #30363d;
+            color: #8b949e;
+            font-size: 0.9em;
+        }
+        .footer a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -203,13 +321,13 @@
         
         <div class="top-container">
             <div class="card">
-                <h2>Overall Stats</h2>
+                <h2>📊 Overall Stats</h2>
                 <div class="stat-row">
                     <span class="stat-label">Total Hashrate (1m):</span>
                     <span class="stat-value hashrate" id="total1m">...</span>
                 </div>
                 <div class="stat-row">
-                    <span class="stat-label">Workers:</span>
+                    <span class="stat-label">Active Workers:</span>
                     <span class="stat-value" id="workerCount">...</span>
                 </div>
                 <div class="stat-row">
@@ -227,7 +345,7 @@
             </div>
             
             <div class="card">
-                <h2>Pool Performance</h2>
+                <h2>📈 Pool Performance</h2>
                 <div class="stat-row">
                     <span class="stat-label">Hashrate (5m):</span>
                     <span class="stat-value" id="hashrate5m">...</span>
@@ -247,17 +365,25 @@
             </div>
             
             <div class="card">
-                <h2>Hashrate Timeline</h2>
+                <h2>📊 Hashrate Timeline</h2>
                 <div class="chart-container">
                     <canvas id="hashrateChart"></canvas>
                 </div>
             </div>
         </div>
         
-        <div class="section-header">⚙️ Individual Miners</div>
+        <div class="section-header">
+            <span>⚙️ Individual Miners</span>
+            <span style="font-size: 0.8em; color: #8b949e;">(Norse Mythology Edition)</span>
+        </div>
         
         <div class="miners-container" id="minersContainer">
             <!-- Individual miner cards will be inserted here -->
+        </div>
+        
+        <div class="footer">
+            <p>Dashboard updates every 30 seconds • Made with ⚡ for NerdMiner community</p>
+            <p>Pool: <a href="https://pool.nerdminers.org" target="_blank">pool.nerdminers.org</a> • API updates via CORS proxy</p>
         </div>
     </div>
 
@@ -270,8 +396,27 @@
         'https://proxy.cors.sh/'
     ];
     
+    // Norse mythology emojis and descriptions
+    const NORSE_EMOJIS = {
+        'Mjolnir': '🔨',
+        'Sleipnir': '🐎',
+        'Gungnir': '⚔️',
+        'Ratatoskr': '🐿️',
+        'default': '⚡'
+    };
+    
+    const MYTHOLOGY_DESC = {
+        'Mjolnir': 'Thor\'s magical hammer - Forged by dwarves Brokkr and Eitri',
+        'Sleipnir': 'Odin\'s eight-legged horse - Fastest steed in all realms',
+        'Gungnir': 'Odin\'s spear - Forged by dwarves, never misses its target',
+        'Ratatoskr': 'Mischievous squirrel - Carries messages up/down Yggdrasil',
+        'default': 'Norse mythology figure'
+    };
+    
+    // Store share history for charts
+    let shareHistory = {};
     let currentProxyIndex = 0;
-    let chartInstance = null;
+    let mainChartInstance = null;
     let lastUpdateTime = null;
     
     function getProxyUrl() {
@@ -282,10 +427,10 @@
     function formatTimeAgo(timestamp) {
         if (!timestamp) return 'Never';
         const seconds = Math.floor(Date.now()/1000) - timestamp;
-        if (seconds < 60) return `${seconds}s ago`;
-        if (seconds < 3600) return `${Math.floor(seconds/60)}m ago`;
-        if (seconds < 86400) return `${Math.floor(seconds/3600)}h ago`;
-        return `${Math.floor(seconds/86400)}d ago`;
+        if (seconds < 60) return `${seconds} seconds ago`;
+        if (seconds < 3600) return `${Math.floor(seconds/60)} minutes ago`;
+        if (seconds < 86400) return `${Math.floor(seconds/3600)} hours ago`;
+        return `${Math.floor(seconds/86400)} days ago`;
     }
     
     // Format hashrate with units
@@ -304,13 +449,137 @@
         return num;
     }
     
+    // Update share history for charts
+    function updateShareHistory(workerName, bestShare, shares) {
+        if (!shareHistory[workerName]) {
+            shareHistory[workerName] = {
+                bestShares: [],
+                totalShares: [],
+                timestamps: []
+            };
+        }
+        
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                       now.getMinutes().toString().padStart(2, '0') + ':' + 
+                       now.getSeconds().toString().padStart(2, '0');
+        
+        shareHistory[workerName].bestShares.push(bestShare);
+        shareHistory[workerName].totalShares.push(shares);
+        shareHistory[workerName].timestamps.push(timeStr);
+        
+        // Keep last 15 data points for cleaner charts
+        if (shareHistory[workerName].bestShares.length > 15) {
+            shareHistory[workerName].bestShares.shift();
+            shareHistory[workerName].totalShares.shift();
+            shareHistory[workerName].timestamps.shift();
+        }
+    }
+    
+    // Create share history chart for a miner
+    function createShareHistoryChart(workerName, containerId) {
+        const history = shareHistory[workerName];
+        if (!history || history.bestShares.length < 2) return null;
+        
+        const canvas = document.getElementById(containerId);
+        if (!canvas) return null;
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Check if this worker found a block (best share >= 1.0)
+        const foundBlock = Math.max(...history.bestShares) >= 1.0;
+        
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: history.timestamps,
+                datasets: [
+                    {
+                        label: 'Best Share',
+                        data: history.bestShares,
+                        borderColor: foundBlock ? '#f78166' : '#58a6ff',
+                        backgroundColor: foundBlock ? 'rgba(247, 129, 102, 0.1)' : 'rgba(88, 166, 255, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: foundBlock ? '#f78166' : '#58a6ff',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#161b22',
+                        titleColor: '#c9d1d9',
+                        bodyColor: '#58a6ff',
+                        borderColor: '#30363d',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return `Best Share: ${value.toFixed(4)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { 
+                            color: '#8b949e', 
+                            font: { size: 10 },
+                            maxRotation: 45
+                        },
+                        grid: { 
+                            color: '#30363d',
+                            drawBorder: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { 
+                            color: '#8b949e',
+                            font: { size: 10 },
+                            callback: function(value) {
+                                return value.toFixed(2);
+                            }
+                        },
+                        grid: { 
+                            color: '#30363d',
+                            drawBorder: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Share Difficulty',
+                            color: '#8b949e',
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                elements: {
+                    line: {
+                        tension: 0.4
+                    }
+                }
+            }
+        });
+    }
+    
     async function fetchData() {
         try {
             // Update indicator
             const updateEl = document.getElementById('updateStatus');
             const timeEl = document.getElementById('updateTime');
             if (updateEl) {
-                updateEl.textContent = '🔄 Updating...';
+                updateEl.textContent = '🔄 Fetching latest data...';
                 updateEl.classList.add('updating');
             }
             
@@ -327,7 +596,7 @@
             
             // Update success indicator
             if (updateEl) {
-                updateEl.textContent = '✅ Live - Updates every 30s';
+                updateEl.textContent = '✅ Live - Updates every 30 seconds';
                 updateEl.classList.remove('updating');
             }
             if (timeEl) {
@@ -342,7 +611,7 @@
             const updateEl = document.getElementById('updateStatus');
             const timeEl = document.getElementById('updateTime');
             if (updateEl) {
-                updateEl.textContent = '❌ Update failed, retrying...';
+                updateEl.textContent = '⚠️ Connection issue, retrying...';
                 updateEl.classList.add('updating');
             }
             if (timeEl) {
@@ -381,8 +650,8 @@
             updateMiners(data.worker);
         }
         
-        // Update chart
-        updateChart(data);
+        // Update main chart
+        updateMainChart(data);
     }
     
     function updateMiners(workers) {
@@ -391,80 +660,113 @@
         
         container.innerHTML = '';
         
-        workers.forEach(worker => {
+        // Destroy old charts first
+        Object.keys(shareHistory).forEach(workerName => {
+            if (window[`chart_${workerName}`]) {
+                window[`chart_${workerName}`].destroy();
+                delete window[`chart_${workerName}`];
+            }
+        });
+        
+        workers.forEach((worker) => {
             const workerName = worker.workername ? worker.workername.split('.')[1] : 'Unknown';
             const minerCard = document.createElement('div');
             minerCard.className = 'miner-card';
+            const chartId = `shareChart_${workerName.replace(/\s+/g, '')}`;
             
             // Calculate status based on last share
             const timeSinceLastShare = worker.lastshare ? Math.floor(Date.now()/1000) - worker.lastshare : 9999;
             const status = timeSinceLastShare < 120 ? 'Online' : 'Stale';
             const statusColor = timeSinceLastShare < 120 ? '#238636' : '#da3633';
             
+            // Get emoji and description
+            const emoji = NORSE_EMOJIS[workerName] || NORSE_EMOJIS.default;
+            const description = MYTHOLOGY_DESC[workerName] || MYTHOLOGY_DESC.default;
+            
+            // Check if this miner found a block (best share >= 1.0)
+            const foundBlock = worker.bestshare >= 1.0;
+            
+            // Update share history
+            updateShareHistory(workerName, worker.bestshare || 0, worker.shares || 0);
+            
             minerCard.innerHTML = `
                 <div class="miner-header">
-                    <div class="miner-name">${workerName}</div>
-                    <div class="miner-status" style="background: ${statusColor}">${status}</div>
-                </div>
-                
-                <div class="stat-row">
-                    <span class="stat-label">Shares:</span>
-                    <span class="stat-value">${worker.shares ? worker.shares.toLocaleString() : '0'}</span>
-                </div>
-                
-                <div class="stat-row">
-                    <span class="stat-label">Best Share:</span>
-                    <span class="stat-value best-share">${worker.bestshare ? worker.bestshare.toFixed(4) : '0.0000'}</span>
-                </div>
-                
-                <div class="stat-row">
-                    <span class="stat-label">Last Share:</span>
-                    <span class="stat-value">${formatTimeAgo(worker.lastshare)}</span>
-                </div>
-                
-                <div style="margin-top: 20px; color: #f78166; font-weight: bold; border-bottom: 1px solid #30363d; padding-bottom: 5px;">
-                    Hashrate Timeline
+                    <div class="miner-icon">
+                        ${emoji}
+                    </div>
+                    <div class="miner-info">
+                        <div class="miner-name">
+                            ${workerName}
+                            ${foundBlock ? '<span class="block-badge">BLOCK FOUND!</span>' : ''}
+                        </div>
+                        <div class="miner-mythology">${description}</div>
+                        <div class="miner-status" style="background: ${statusColor}">
+                            ${status} • ${worker.shares ? worker.shares.toLocaleString() : '0'} shares
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="timeframe-stats">
                     <div class="timeframe-card">
-                        <div class="timeframe-label">Last 1 minute</div>
+                        <div class="timeframe-label">⚡ Last 1 minute</div>
                         <div class="timeframe-value">${worker.hashrate1m || '0 H/s'}</div>
                     </div>
                     <div class="timeframe-card">
-                        <div class="timeframe-label">Last 5 minutes</div>
+                        <div class="timeframe-label">📊 Last 5 minutes</div>
                         <div class="timeframe-value">${worker.hashrate5m || '0 H/s'}</div>
                     </div>
                     <div class="timeframe-card">
-                        <div class="timeframe-label">Last 15 minutes</div>
+                        <div class="timeframe-label">⏱️ Last 15 minutes</div>
                         <div class="timeframe-value">${worker.hashrate1hr ? formatHashrate(parseHashrate(worker.hashrate1hr) * 0.9) : '0 H/s'}</div>
                     </div>
                     <div class="timeframe-card">
-                        <div class="timeframe-label">Last 30 minutes</div>
+                        <div class="timeframe-label">🕒 Last 30 minutes</div>
                         <div class="timeframe-value">${worker.hashrate1hr ? formatHashrate(parseHashrate(worker.hashrate1hr) * 0.8) : '0 H/s'}</div>
                     </div>
                     <div class="timeframe-card">
-                        <div class="timeframe-label">Last 60 minutes</div>
+                        <div class="timeframe-label">⏰ Last 60 minutes</div>
                         <div class="timeframe-value">${worker.hashrate1hr || '0 H/s'}</div>
                     </div>
                     <div class="timeframe-card">
-                        <div class="timeframe-label">Last 24 hours</div>
+                        <div class="timeframe-label">📅 Last 24 hours</div>
                         <div class="timeframe-value">${worker.hashrate1d || '0 H/s'}</div>
+                    </div>
+                </div>
+                
+                <div class="stat-row">
+                    <span class="stat-label">🏆 Best Share:</span>
+                    <span class="stat-value best-share">${worker.bestshare ? worker.bestshare.toFixed(4) : '0.0000'}</span>
+                </div>
+                
+                <div class="stat-row">
+                    <span class="stat-label">🕐 Last Share:</span>
+                    <span class="stat-value">${formatTimeAgo(worker.lastshare)}</span>
+                </div>
+                
+                <div class="share-history">
+                    <h3>📈 Share Performance History</h3>
+                    <div class="small-chart-container">
+                        <canvas id="${chartId}"></canvas>
                     </div>
                 </div>
             `;
             
             container.appendChild(minerCard);
+            
+            // Create chart after DOM is inserted
+            setTimeout(() => {
+                window[`chart_${workerName}`] = createShareHistoryChart(workerName, chartId);
+            }, 100);
         });
     }
     
-    function updateChart(data) {
+    function updateMainChart(data) {
         const canvas = document.getElementById('hashrateChart');
         if (!canvas) return;
         
         const ctx = canvas.getContext('2d');
-        if (chartInstance) {
-            chartInstance.destroy();
+        if (mainChartInstance) {
+            mainChartInstance.destroy();
         }
         
         // Prepare data
@@ -474,28 +776,28 @@
         const hashrate1d = parseHashrate(data.hashrate1d);
         const hashrate7d = parseHashrate(data.hashrate7d);
         
-        chartInstance = new Chart(ctx, {
+        mainChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['1m', '5m', '1hr', '1d', '7d'],
+                labels: ['1 minute', '5 minutes', '1 hour', '1 day', '7 days'],
                 datasets: [{
                     label: 'Total Hashrate',
                     data: [hashrate1m, hashrate5m, hashrate1hr, hashrate1d, hashrate7d],
                     borderColor: '#58a6ff',
                     backgroundColor: 'rgba(88, 166, 255, 0.2)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.3,
+                    tension: 0.4,
                     pointBackgroundColor: '#58a6ff',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     pointRadius: 5,
-                    pointHoverRadius: 7
+                    pointHoverRadius: 8
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // Critical for fixed height container
+                maintainAspectRatio: false,
                 plugins: {
                     legend: { 
                         labels: { 
@@ -542,7 +844,7 @@
                     x: {
                         ticks: { 
                             color: '#8b949e', 
-                            font: { size: 12 },
+                            font: { size: 11 },
                             padding: 10
                         },
                         grid: { 
@@ -553,7 +855,7 @@
                 },
                 elements: {
                     line: {
-                        tension: 0.3
+                        tension: 0.4
                     }
                 },
                 layout: {
@@ -573,6 +875,14 @@
         fetchData();
         // Update every 30 seconds
         setInterval(fetchData, 30000);
+        
+        // Add keyboard shortcut for manual refresh (F5 or Ctrl+R)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                e.preventDefault();
+                fetchData();
+            }
+        });
     });
 </script>
 </body>
